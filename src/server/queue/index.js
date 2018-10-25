@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const Bull = require('bull');
 const Bee = require('bee-queue');
+const redis = require('redis');
+
 const path = require('path');
 
 class Queues {
@@ -18,10 +20,24 @@ class Queues {
     };
 
     this.setConfig(config);
+
+    if(config.type === 'bee' && config.discovery){
+      this.redis = redis.createClient(config);
+    }
   }
 
-  list() {
-    return this._config.queues;
+  async list() {
+    if (!this._config.discovery){
+      return this._config.queues;
+    }
+
+    const self = this;
+    return new Promise((resolve, reject) => {
+      this.redis.keys(`bq:${this._config.prefix}*:id`, function(err, res) {
+        self._config.queues = res.map(name => ({ name: name.slice(0, -3), hostId: self._config.hostId }));
+        resolve(self._config.queues);
+      })
+    })
   }
 
   setConfig(config) {
