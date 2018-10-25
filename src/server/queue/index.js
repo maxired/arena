@@ -54,9 +54,10 @@ class Queues {
       }
       const stats = await queue.client.info();
 
-      console.log('jobCounts', jobCounts);
-      return { ...q, jobCounts, stats };
-    }))
+      const inProgess = jobCounts.active + jobCounts.waiting + jobCounts.completed + jobCounts.failed + jobCounts.delayed;
+
+      return { ...q, jobCounts, stats, inProgess };
+    })).then(q => q.filter(e => e.inProgess > 0))
   }
 
   setConfig(config) {
