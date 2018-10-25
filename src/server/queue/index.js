@@ -40,6 +40,25 @@ class Queues {
     })
   }
 
+  async stats() {
+    const queues = await this.list();
+
+    return Promise.all(queues.map(async (q) => {
+      const queue = await this.get(q.name, q.hostId);
+      let jobCounts;
+      if (queue.IS_BEE) {
+        jobCounts = await queue.checkHealth();
+        delete jobCounts.newestJob;
+      } else {
+        jobCounts = await queue.getJobCounts();
+      }
+      const stats = await queue.client.info();
+
+      console.log('jobCounts', jobCounts);
+      return { ...q, jobCounts, stats };
+    }))
+  }
+
   setConfig(config) {
     this._config = config;
   }

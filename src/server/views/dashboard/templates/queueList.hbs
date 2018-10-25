@@ -7,6 +7,11 @@
       {{#each queues}}
         <li class="list-group-item">
           <a href="{{ ../basePath }}/{{ encodeURI this.hostId }}/{{ encodeURI this.name }}">{{ this.hostId }}/{{ this.name }}</a>
+          <span>Active {{this.jobCounts.active}}</span>
+          <span>Waiting {{this.jobCounts.waiting}}</span>
+          <span>Completed {{this.jobCounts.completed}}</span>
+          <span>Failed {{this.jobCounts.failed}}</span>
+          <span>Delayed {{this.jobCounts.delayed}}</span>
         </li>
       {{/each}}
     </ul>
